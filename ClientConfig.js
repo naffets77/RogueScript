@@ -2,6 +2,11 @@ var igeClientConfig = {
 	include: [
 		/* Your custom game JS scripts */
 
+        './gameClasses/RogueScript.js',
+
+        './gameClasses/World/Dungeons/DungeonBuilder.js',
+
+
         './gameClasses/PlayerComponent.js',
         './gameClasses/Character.js',
 		'./gameClasses/Rotator.js',
