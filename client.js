@@ -27,6 +27,8 @@ var Client = IgeClass.extend({
 
 		gameTexture[3] = new IgeCellSheet('/Content/Images/Sprites/Characters/vx_chara02_c.png', 12, 8);
 
+		gameTexture[4] = new IgeTexture('/Content/Images/Sprites/Environment/block_dirt.png');
+
 		//gameTexture[2] = new IgeSpriteSheet('/Engines/ige_prototype-master/examples/assets/textures/tiles/vx-xp-174-chest01.png');
 		// Wait for our textures to load before continuing
 		ige.on('texturesLoaded', function () {
@@ -58,10 +60,12 @@ var Client = IgeClass.extend({
 						.id('vp1')
 						.autoSize(true)
 						.scene(self.scene1)
-						.drawBounds(false)
+						.drawBounds(true)
                         .addComponent(IgeMousePanComponent)
                         .mousePan.enabled(true)
 						.mount(ige);
+
+
 
 			        var mazeHeight = 16, mazeWidth = 16;
 
@@ -73,7 +77,7 @@ var Client = IgeClass.extend({
 						.tileHeight(32)
 						.drawGrid(mazeHeight)
 						.drawMouse(true)
-						.drawBounds(true)
+						.drawBounds(false)
 						.isometricMounts(true)
 					    .highlightOccupied(true)
 						.mouseUp(function (x, y, event) {
@@ -85,36 +89,36 @@ var Client = IgeClass.extend({
 
 			        // Create Player
 
-			        self.player1 = new Character()
-                        .addComponent(PlayerComponent)
-                        .box2dBody({
-                            type: 'dynamic',
-                            linearDamping: 0.0,
-                            angularDamping: 0.1,
-                            allowSleep: true,
-                            bullet: true,
-                            gravitic: true,
-                            fixedRotation: true,
-                            fixtures: [{
-                                density: 1.0,
-                                friction: 0.5,
-                                restitution: 0.2,
-                                shape: {
-                                    type: 'polygon',
-                                    data: new IgePoly2d()
-                                        .addPoint(-0.5, 0.2)
-                                        .addPoint(0.5, 0.2)
-                                        .addPoint(0.5, 0.8)
-                                        .addPoint(-0.5, 0.8)
-                                }
-                            }]
-                        })
-                        .id('player1')
-                        .setType(0)
-                        .translateTo(480, 300, 0)
-                        .drawBounds(false)
-                        .mount(self.tileMap)
-                        .translateToTile(0, 1, 0);
+			        //self.player1 = new Character()
+                    //    .addComponent(PlayerComponent)
+                    //    .box2dBody({
+                    //        type: 'dynamic',
+                    //        linearDamping: 0.0,
+                    //        angularDamping: 0.1,
+                    //        allowSleep: true,
+                    //        bullet: true,
+                    //        gravitic: true,
+                    //        fixedRotation: true,
+                    //        fixtures: [{
+                    //            density: 1.0,
+                    //            friction: 0.5,
+                    //            restitution: 0.2,
+                    //            shape: {
+                    //                type: 'polygon',
+                    //                data: new IgePoly2d()
+                    //                    .addPoint(-0.5, 0.2)
+                    //                    .addPoint(0.5, 0.2)
+                    //                    .addPoint(0.5, 0.8)
+                    //                    .addPoint(-0.5, 0.8)
+                    //            }
+                    //        }]
+                    //    })
+                    //    .id('player1')
+                    //    .setType(0)
+                    //    .translateTo(480, 300, 0)
+                    //    .drawBounds(false)
+                    //    .mount(self.tileMap)
+                    //    .translateToTile(0, 1, 0);
 
 			        // Define our player character classes
 			        self.CharacterMonk = IgeEntity.extend({
@@ -184,10 +188,7 @@ var Client = IgeClass.extend({
 
 
 			        // Make Monk
-			        self.obj[0] = new self.CharacterMonk();
-
-
-
+			        //self.obj[0] = new self.CharacterMonk();
 
 			        // Translate the camera to the initial player position
 			        self.vp1.camera.lookAt(self.player1);
@@ -207,7 +208,73 @@ var Client = IgeClass.extend({
 			        }).newDungeon();
 
 
-    
+
+
+			        for (var i = 0; i < mazeHeight; i++) {
+			            for (var j = 0; j < mazeWidth; j++) {
+
+			                if (self.tileMap.isTileOccupied(i, j, 1, 1)) {
+
+			                    /**/
+			                    var container = new IgeEntity()
+                                .depth(1)
+                                .id('wallContainer_' + i + '_' + j)
+                                .isometric(true) // Set the entity to position isometrically instead of in 2d space
+                                .size3d(32, 32, 16)// Set 3d bounds to width 80 (along x axis), length 120 (along y axis), height 90 (along z axis)
+                                .drawBounds(false)
+                                .mount(self.tileMap)
+                                .translateToTile(i, j, 0);
+                                
+
+			                    /**/
+			                    self.obj[2] = new IgeEntity()
+                                    .id('wall' + '_' + i + '_' + j)
+                                    .height(75)
+                                    .width(75)
+                                    .depth(1)
+                                    .drawBounds(false)
+                                    .texture(gameTexture[4])
+                                    .mount(container).translateTo(1, -7, 0);
+                                    
+			                        
+			                }
+			            }
+			        }
+			        
+
+
+/*
+			        self.obj[3] = new IgeEntity()
+						.id('wall2')
+						.depth(1)
+                        .height(64)
+                        .width(64)
+						.texture(gameTexture[4])
+                        .drawBounds(true)
+				    	.mount(self.tileMap)
+                        .translateToTile(0, 2, 0);
+
+			        self.obj[4] = new IgeEntity()
+						.id('wall3')
+						.depth(1)
+                        .height(64)
+                        .width(64)
+						.texture(gameTexture[4])
+                        .drawBounds(true)
+				    	.mount(self.tileMap)
+                        .translateToTile(0, 3, 0);
+
+			        self.obj[5] = new IgeEntity()
+						.id('wall4')
+						.depth(1)
+                        .height(64)
+                        .width(64)
+						.texture(gameTexture[4])
+                        .drawBounds(true)
+				    	.mount(self.tileMap)
+                        .translateToTile(0, 4, 0);
+*/
+
 
 
 
@@ -236,22 +303,6 @@ var Client = IgeClass.extend({
 					//	.tileHeight(2)
 					//	.occupyTile()
 					//	.size3d(80, 80, 0);
-
-
-
-
-					// Create an entity and mount it to the scene
-					// (the class Rotator is declared in ./gameClasses/Rotator.js)
-					//self.obj[2] = new IgeEntity()
-					//	.id('wall1')
-					//	.depth(1)
-                    //    .height(64)
-                    //    .width(64)
-					//	.texture(gameTexture[2])
-                    //    .cellById('wall1')
-                    //    .drawBounds(true)
-				    //	.mount(self.tileMap)
-                    //    .translateToTile(3, 3, 0);
 
 					//self.obj[3] = new IgeEntity()
 					//	.id('wall2')
