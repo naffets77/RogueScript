@@ -1,121 +1,63 @@
 /**
- * Adds keyboard control to the entity this component is added to.
+ * Adds mouse control to the entity this component is added to.
  * @type {IgeClass}
  */
 var PlayerComponent = IgeClass.extend({
-	classId: 'PlayerComponent',
-	componentId: 'player',
+    classId: 'PlayerComponent',
+    componentId: 'player',
 
-	init: function (entity, options) {
-		var self = this;
+    init: function (entity, options) {
+        var self = this;
 
-		// Store the entity that this component has been added to
-		this._entity = entity;
+        // Store the entity that this component has been added to
+        this._entity = entity;
 
-		// Store any options that were passed to us
-		this._options = options;
+        // Store any options that were passed to us
+        this._options = options;
 
-		// Setup the control system
-		ige.input.mapAction('walkLeft', ige.input.key.a);
-		ige.input.mapAction('walkRight', ige.input.key.d);
-		ige.input.mapAction('walkUp', ige.input.key.w);
-		ige.input.mapAction('walkDown', ige.input.key.s);
+        // Listen for the mouse up event
+        ige.input.on('mouseUp', function (event, x, y, button) { self._mouseUp(event, x, y, button); });
+    },
 
-		// Listen for the key up event
-		ige.input.on('keyUp', function (event, keyCode) { self._keyUp(event, keyCode); });
+    /**
+	 * Handles what we do when a mouseUp event is fired from the engine.
+	 * @param event
+	 * @private
+	 */
+    _mouseUp: function (event, x, y, button) {
+        // Get the tile co-ordinates that the mouse is currently over
+        var endTile = ige.$('ISOTileMap').mouseToTile(),
+			currentPosition = this._entity._translate,
+			startTile,
+			newPath,
+			endPoint = this._entity.path.endPoint();
 
-		// Add the playerComponent behaviour to the entity
-		this._entity.addBehaviour('playerComponent_behaviour', this._behaviour);
-	},
+        // Check if we have a current path, if so, add to it
+        if (endPoint) {
+            // Use the end point of the existing path as the
+            // start point of the new path
+            startTile = endPoint;
+        } else {
+            // Calculate which tile our character is currently "over"
+            if (this._entity._parent.isometricMounts()) {
+                startTile = this._entity._parent.pointToTile(currentPosition.toIso());
+            } else {
+                startTile = this._entity._parent.pointToTile(currentPosition);
+            }
+        }
 
-	_keyUp: function (event, keyCode) {
-		if (keyCode === ige.input.key.space) {
-			// Change the character
-			this._entity._characterType++;
+        // Create a path from the current position to the target tile
+        newPath = ige.client.pathFinder.aStar(ige.client.tileMap, startTile, endTile, function (tileData, tileX, tileY) {
+            // If the map tile data is set to 1, don't allow a path along it
+            return tileData !== 1;
+        }, true, true, true);
 
-			if (this._entity._characterType > 7) {
-				this._entity._characterType = 0;
-			}
-
-			this._entity.setType(this._entity._characterType);
-		}
-	},
-
-	_behaviour: function (ctx) {
-		var vel = 6,
-			direction = '';
-
-		if (ige.input.actionState('walkUp')) {
-			direction += 'N';
-		}
-
-		if (ige.input.actionState('walkDown')) {
-			direction += 'S';
-		}
-
-		if (ige.input.actionState('walkLeft')) {
-			direction += 'W';
-		}
-
-		if (ige.input.actionState('walkRight')) {
-			direction += 'E';
-		}
-
-		switch (direction) {
-			case 'N':
-				this._box2dBody.SetLinearVelocity(new IgePoint(0, -vel, 0));
-				this._box2dBody.SetAwake(true);
-				this.animation.select('walkUp');
-				break;
-
-			case 'S':
-				this._box2dBody.SetLinearVelocity(new IgePoint(0, vel, 0));
-				this._box2dBody.SetAwake(true);
-				this.animation.select('walkDown');
-				break;
-
-			case 'E':
-				this._box2dBody.SetLinearVelocity(new IgePoint(vel, 0, 0));
-				this._box2dBody.SetAwake(true);
-				this.animation.select('walkRight');
-				break;
-
-			case 'W':
-				this._box2dBody.SetLinearVelocity(new IgePoint(-vel, 0, 0));
-				this._box2dBody.SetAwake(true);
-				this.animation.select('walkLeft');
-				break;
-
-			case 'NE':
-				this._box2dBody.SetLinearVelocity(new IgePoint(vel, -vel, 0));
-				this._box2dBody.SetAwake(true);
-				this.animation.select('walkRight');
-				break;
-
-			case 'NW':
-				this._box2dBody.SetLinearVelocity(new IgePoint(-vel, -vel, 0));
-				this._box2dBody.SetAwake(true);
-				this.animation.select('walkLeft');
-				break;
-
-			case 'SE':
-				this._box2dBody.SetLinearVelocity(new IgePoint(vel, vel, 0));
-				this._box2dBody.SetAwake(true);
-				this.animation.select('walkRight');
-				break;
-
-			case 'SW':
-				this._box2dBody.SetLinearVelocity(new IgePoint(-vel, vel, 0));
-				this._box2dBody.SetAwake(true);
-				this.animation.select('walkLeft');
-				break;
-
-			default:
-				this._box2dBody.SetLinearVelocity(new IgePoint(0, 0, 0));
-				this.animation.stop();
-				break;
-		}
-	}
+        // Tell the entity to start pathing along the new path
+        this._entity
+			//.path.clear()
+			.path.add(newPath)
+			.path.start();
+    }
 });
 
-if (typeof(module) !== 'undefined' && typeof(module.exports) !== 'undefined') { module.exports = PlayerComponent; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = PlayerComponent; }

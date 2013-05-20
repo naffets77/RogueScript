@@ -9,7 +9,7 @@ var igeClientConfig = {
 
         './gameClasses/PlayerComponent.js',
         './gameClasses/Character.js',
-		'./gameClasses/Rotator.js',
+        './gameClasses/CharacterContainer.js',
 		/* Standard game scripts */
 		'./client.js',
 		'./index.js'
