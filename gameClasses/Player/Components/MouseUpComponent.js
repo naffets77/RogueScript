@@ -1,10 +1,24 @@
+
+
+/***
+
+    The player component is specific to the Real Player, it's what is added to a character that makes it NOT an npc!
+
+***/
+
+
+
+
+
+
+
 /**
  * Adds mouse control to the entity this component is added to.
  * @type {IgeClass}
  */
-var PlayerComponent = IgeClass.extend({
-    classId: 'PlayerComponent',
-    componentId: 'player',
+var MouseUpComponent = IgeClass.extend({
+    classId: 'MouseUpComponent',
+    componentId: 'mouseUpComponent',
 
     init: function (entity, options) {
         var self = this;
@@ -59,5 +73,21 @@ var PlayerComponent = IgeClass.extend({
 			.path.start();
     }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = PlayerComponent; }

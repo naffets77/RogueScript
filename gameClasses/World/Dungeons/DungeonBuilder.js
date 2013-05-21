@@ -21,6 +21,23 @@
 
     DungeonBuilder.prototype.newDungeon = function () {
 
+        this.createBlueprint();
+   
+        // need to make sure Blueprint makes sense
+
+        // add walls
+        this.populateWalls();
+
+
+
+    }
+
+ 
+
+    // Dungeon Builder Helpers
+
+    DungeonBuilder.prototype.createBlueprint = function() {
+
 
         resetTileMap(this.tileMap, this.height, this.width); // Sets All Nodes as Visited
 
@@ -96,7 +113,7 @@
 
                     //console.log('--Is Valid For Removal');
                     current.tested[rand] = true; // done looking at that guy
-                    var openCell =  new dungeonNode(loc); //{ loc: [loc.x, loc.y], tested: [null, null, null, null] };
+                    var openCell = new dungeonNode(loc); //{ loc: [loc.x, loc.y], tested: [null, null, null, null] };
                     this.tileMap.unOccupyTile(openCell.loc.x, openCell.loc.y, 1, 1);
 
                     if (!inCellsToSkip(openCell, cellsToSkip)) {
@@ -130,10 +147,46 @@
 
     }
 
+    DungeonBuilder.prototype.populateWalls = function () {
+
+        // TODO: Figure out how to preload and use this texture. Seems to be working here for now...
+        var WallTexture = new IgeTexture('/Content/Images/Sprites/Environment/block_dirt.png');
+
+        for (var i = 0; i < this.height; i++) {
+            for (var j = 0; j < this.width; j++) {
+
+                if (this.tileMap.isTileOccupied(i, j, 1, 1)) {
+
+                    /**/
+                    var container = new IgeEntity()
+                    .depth(1)
+                    .id('wallContainer_' + i + '_' + j)
+                    .isometric(true) // Set the entity to position isometrically instead of in 2d space
+                    .size3d(32, 32, 16)// Set 3d bounds to width 80 (along x axis), length 120 (along y axis), height 90 (along z axis)
+                    .drawBounds(false)
+                    .addGroup("NonPlayerObject").addGroup("Wall")
+                    .mount(this.tileMap)
+                    .translateToTile(i, j, 0);
 
 
+                    /**/
+                    new IgeEntity()
+                        .id('wall' + '_' + i + '_' + j)
+                        .height(74)
+                        .width(74)
+                        .depth(1)
+                        .drawBounds(false)
+                        .texture(WallTexture)
+                        .mount(container).translateTo(1, -7, 0);
 
-    // Helper Functions
+
+                }
+            }
+        }
+
+    }
+
+    // General Helper Functions
 
     function resetTileMap(tileMap, height, width) {
         for (var i = 0 ; i < height; i++) {

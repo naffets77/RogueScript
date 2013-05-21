@@ -178,23 +178,6 @@ var Character = IgeEntity.extend({
         this.depth(this._translate.y);
 
 
-        //"NonPlayerObject"
-
-        //console.log("tic?");
-
-        var NPCs = ige.$$$("NonPlayerObject");
-        var NumberOfNPCs = NPCs.length;
-
-        while (NumberOfNPCs--) {
-            var NPC = NPCs[NumberOfNPCs];
-
-            if (Math.distance(this._aabb.x, this._aabb.y, NPC._aabb.x, NPC._aabb.y) > 200) {
-                NPC.hide();
-            }
-            else {
-                NPC.show();
-            }
-        }
 
         IgeEntity.prototype.update.call(this, ctx);
     },
@@ -209,5 +192,17 @@ var Character = IgeEntity.extend({
         IgeEntity.prototype.destroy.call(this);
     }
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
 if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = Character; }
